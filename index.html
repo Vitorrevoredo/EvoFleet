@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EvoFleet — Arcade Evolutivo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="game-topbar">
+      <div class="logo-lockup">
+        <div class="logo-badge">EF</div>
+        <div>
+          <strong>EVOFLEET</strong>
+          <small>ARCADE EVOLUTIVO</small>
+        </div>
+      </div>
+
+      <div class="round-display">
+        <span>GERAÇÃO</span>
+        <strong id="generationValue">1</strong>
+      </div>
+
+      <div class="top-actions">
+        <button id="pauseBtn" class="game-button blue" type="button">PAUSAR</button>
+        <button id="resetBtn" class="game-button red" type="button">REINICIAR</button>
+      </div>
+    </header>
+
+    <main class="arcade-layout">
+      <section class="play-area">
+        <div class="screen-frame">
+          <canvas id="gameCanvas" width="1280" height="720" aria-label="Jogo de combate espacial 2D"></canvas>
+
+          <div id="startOverlay" class="overlay show">
+            <div class="title-screen">
+              <div class="title-stars">★ ★ ★</div>
+              <h1>EVOFLEET</h1>
+              <p>DERROTE A ONDA. SOBREVIVA. EVOLUA.</p>
+              <div class="controls-line">
+                <span><b>WASD</b> mover</span>
+                <span><b>MOUSE</b> mirar</span>
+                <span><b>CLICK</b> atirar</span>
+                <span><b>SHIFT</b> turbo</span>
+              </div>
+              <button id="startBtn" class="start-button" type="button">▶ JOGAR</button>
+            </div>
+          </div>
+
+          <div id="generationOverlay" class="overlay">
+            <div class="stage-clear">
+              <div class="stage-title">
+                <span>STAGE CLEAR</span>
+                <h2 id="generationSummaryTitle">GERAÇÃO CONCLUÍDA</h2>
+                <p id="generationSummaryText"></p>
+              </div>
+
+              <div class="between-columns">
+                <section class="evolution-box">
+                  <div class="box-title">EVOLUÇÃO INIMIGA</div>
+                  <div class="score-row">
+                    <div><span>MELHOR</span><strong id="summaryBestFitness">0</strong></div>
+                    <div><span>MÉDIA</span><strong id="summaryAverageFitness">0</strong></div>
+                    <div><span>MUTAÇÃO</span><strong id="summaryMutation">5%</strong></div>
+                  </div>
+
+                  <div class="parents-panel">
+                    <div>
+                      <span class="parent-label">PAI A</span>
+                      <strong id="parentAName">—</strong>
+                      <small id="parentAFitness">—</small>
+                    </div>
+                    <div class="cross-symbol">×</div>
+                    <div>
+                      <span class="parent-label">PAI B</span>
+                      <strong id="parentBName">—</strong>
+                      <small id="parentBFitness">—</small>
+                    </div>
+                    <div class="cross-symbol">→</div>
+                    <div>
+                      <span class="parent-label">PRÓXIMA ONDA</span>
+                      <strong id="offspringText">—</strong>
+                      <small>crossover + mutação</small>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="upgrade-box">
+                  <div class="shop-head">
+                    <div class="box-title">OFICINA DA NAVE</div>
+                    <div class="shop-wallet">CRÉDITOS <strong id="shopCredits">0</strong></div>
+                  </div>
+                  <div id="shopItems" class="shop-items"></div>
+                  <p class="shop-note">Compre o que quiser ou guarde créditos para as próximas gerações.</p>
+                </section>
+              </div>
+
+              <button id="nextGenerationBtn" class="continue-button" type="button">CONTINUAR ▶</button>
+            </div>
+          </div>
+
+          <div class="corner-hud player-hud">
+            <div class="hud-title">NAVE</div>
+            <div class="hud-line"><span>VIDA</span><strong id="playerHpText">100%</strong></div>
+            <div class="life-bar"><i id="playerHpBar"></i></div>
+            <div class="hud-line"><span>CRÉDITOS</span><strong id="scoreValue">0</strong></div>
+          </div>
+
+          <div class="corner-hud wave-hud">
+            <div class="hud-title">ONDA</div>
+            <div class="hud-line"><span>TEMPO</span><strong id="timerValue">25.0</strong></div>
+            <div class="hud-line"><span>INIMIGOS</span><strong id="aliveValue">0</strong></div>
+            <div class="hud-line"><span>FITNESS</span><strong id="liveBestFitness">0</strong></div>
+          </div>
+        </div>
+
+        <div class="quick-strip">
+          <div><span>ESTADO</span><strong id="statusText">PRONTO</strong></div>
+          <div><span>POP</span><strong id="populationHud">12</strong></div>
+          <div><span>CROSS</span><strong id="crossoverHud">80%</strong></div>
+          <div><span>MUT</span><strong id="mutationHud">5%</strong></div>
+        </div>
+      </section>
+
+      <aside class="game-menu">
+        <section class="menu-card ship-card">
+          <div class="menu-card-title">
+            <span>SUA NAVE</span>
+            <b id="shipLevelValue">LV 1</b>
+          </div>
+          <div id="playerStats" class="player-stats"></div>
+        </section>
+
+        <section class="menu-card enemy-card">
+          <div class="menu-card-title">
+            <span>RADAR INIMIGO</span>
+            <b id="championBadge">G1</b>
+          </div>
+          <div id="geneBars" class="gene-bars"></div>
+        </section>
+
+        <section class="menu-card tuning-card">
+          <div class="menu-card-title"><span>AJUSTE DA ONDA</span><b>AG</b></div>
+
+          <label class="range-field">
+            <span>POPULAÇÃO <strong id="populationOut">12</strong></span>
+            <input id="populationInput" type="range" min="8" max="24" step="2" value="12" />
+          </label>
+          <label class="range-field">
+            <span>CROSSOVER <strong id="crossoverOut">80%</strong></span>
+            <input id="crossoverInput" type="range" min="50" max="100" step="5" value="80" />
+          </label>
+          <label class="range-field">
+            <span>MUTAÇÃO <strong id="mutationOut">5%</strong></span>
+            <input id="mutationInput" type="range" min="1" max="20" step="1" value="5" />
+          </label>
+          <label class="range-field">
+            <span>DURAÇÃO <strong id="durationOut">25s</strong></span>
+            <input id="durationInput" type="range" min="15" max="45" step="5" value="25" />
+          </label>
+          <p class="tiny-note">Mudanças valem na próxima geração.</p>
+        </section>
+
+        <section class="menu-card lab-card">
+          <div class="menu-card-title"><span>TESTES</span><b>LAB</b></div>
+          <p class="lab-copy">Presets para comparar parâmetros do AG no relatório.</p>
+          <div class="scenario-buttons">
+            <button id="scenarioABtn" type="button">CENÁRIO A</button>
+            <button id="scenarioBBtn" type="button">CENÁRIO B</button>
+          </div>
+          <div id="labReadout" class="lab-readout">Modo livre · nenhum teste registrado.</div>
+          <button id="exportMetricsBtn" class="export-button" type="button">EXPORTAR MÉTRICAS CSV</button>
+        </section>
+
+        <section class="menu-card chart-card">
+          <div class="menu-card-title"><span>EVOLUÇÃO</span><b>FITNESS</b></div>
+          <canvas id="fitnessChart" width="420" height="210"></canvas>
+          <div class="chart-legend"><span><i class="best"></i>melhor</span><span><i class="avg"></i>média</span></div>
+        </section>
+
+        <section class="menu-card log-card">
+          <div class="menu-card-title"><span>HISTÓRICO</span><b>LOG</b></div>
+          <div id="evolutionLog" class="evolution-log"></div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script src="js/genetic.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
